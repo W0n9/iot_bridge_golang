@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: iot
-        image: w0n9/iot_bridge_golang:v0.0.1
+        image: w0n9/iot_bridge_golang:v0.0.2
         resources:
           limits:
             memory: "128Mi"

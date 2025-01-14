@@ -54,7 +54,7 @@ func ReadSensor(serverIP string, serverPort int) (*SensorData, error) {
 			if len(parts) == 2 {
 				intPart, _ := strconv.Atoi(parts[0])
 				decPart, _ := strconv.Atoi(parts[1][1:])
-				temp = float64(-1.0) * (float64(abs(intPart)) + float64(decPart)*0.01)
+				temp = float64(-1.0) * float64(abs(intPart)+decPart) / 100
 			}
 		}
 	}
