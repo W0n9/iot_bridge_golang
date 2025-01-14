@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -50,6 +51,9 @@ func init() {
 func monitorSensor(s config.Sensor) {
 	for {
 		reading, err := read_sensor.ReadSensor(s.IP, 80)
+		if reading.Humidity == 0 {
+			err = fmt.Errorf("humidity is 0")
+		}
 		if err != nil {
 			logger.Errorw("Failed to read sensor",
 				"ip", s.IP,
