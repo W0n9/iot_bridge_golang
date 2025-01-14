@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: iot-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: iot
+  ports:
+  - name: http
+    port: 9580
+    targetPort: http
