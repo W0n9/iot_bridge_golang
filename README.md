@@ -21,7 +21,7 @@ sensors:
 2. Run the following command:
 
 ```docker
-docker run -itd -p 9580:9580 -v /path/to/config.yaml:/usr/src/app/config.yaml w0n9/iot_bridge_golang
+docker run -itd -p 9580:9580 -v /path/to/config.yaml:/app/config.yaml w0n9/iot_bridge_golang
 ```
 
 ### Example of Response from Sensors
