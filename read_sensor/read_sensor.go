@@ -19,7 +19,8 @@ type SensorData struct {
 
 // ReadSensor 读取传感器数据
 func ReadSensor(serverIP string, serverPort int) (*SensorData, error) {
-	// 设置连接超时
+	// 因为传感器使用的是原始的TCP协议，所以需要使用socket来进行通信
+	// 设置超时时间为2秒，避免超时阻塞主线程
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", serverIP, serverPort), 2*time.Second)
 	if err != nil {
 		return nil, err

@@ -10,12 +10,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
 	logger           *zap.SugaredLogger
-	temperatureGauge = prometheus.NewGaugeVec(
+	temperatureGauge = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "temperature_metric_celsius",
 			Help: "Temperature measured by the WRD Sensor",
@@ -23,7 +24,7 @@ var (
 		[]string{"node", "campus", "building", "room"},
 	)
 
-	humidityGauge = prometheus.NewGaugeVec(
+	humidityGauge = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "humidity_metric_ratio",
 			Help: "Humidity percentage measured by the WRD Sensor",
@@ -31,21 +32,6 @@ var (
 		[]string{"node", "campus", "building", "room"},
 	)
 )
-
-func init() {
-	// 初始化 zap logger
-	zapLogger, err := zap.NewProduction()
-	if err != nil {
-		panic(err)
-	}
-	defer zapLogger.Sync()
-
-	// 创建 SugaredLogger
-	logger = zapLogger.Sugar()
-
-	prometheus.MustRegister(temperatureGauge)
-	prometheus.MustRegister(humidityGauge)
-}
 
 func monitorSensor(s config.Sensor) {
 	for {
@@ -74,9 +60,19 @@ func monitorSensor(s config.Sensor) {
 }
 
 func main() {
+	// 初始化 zap logger
+	zapLogger, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+
+	// 创建 SugaredLogger
+	logger = zapLogger.Sugar()
+	defer logger.Sync()
+
 	cfg, err := config.LoadConfig("config.yaml")
 	if err != nil {
-		logger.Fatalw("加载配置失败",
+		logger.Fatalw("LoadConfig failed",
 			"error", err,
 		)
 	}

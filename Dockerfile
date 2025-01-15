@@ -1,7 +1,7 @@
 # 构建阶段
 FROM golang:1.23-alpine AS builder
 
-LABEL TsungWing Wong=<TsungWing_Wong@outlook.com>
+LABEL maintainer="TsungWing Wong<TsungWing_Wong@outlook.com>"
 
 WORKDIR /build
 
