@@ -34,9 +34,14 @@ var (
 )
 
 func monitorSensor(s config.Sensor) {
+	failureCount := 0
+	baseDelay := 15 * time.Second
+	maxDelay := 15 * time.Minute // 设置最大重试延迟为15分钟
+
 	for {
 		reading, err := read_sensor.ReadSensor(s.IP, 80)
 		if err != nil {
+			failureCount++
 			logger.Errorw("Failed to read sensor",
 				"ip", s.IP,
 				"campus", s.Campus,
@@ -46,8 +51,32 @@ func monitorSensor(s config.Sensor) {
 			)
 			temperatureGauge.DeleteLabelValues(s.IP, s.Campus, s.Building, s.Room)
 			humidityGauge.DeleteLabelValues(s.IP, s.Campus, s.Building, s.Room)
-			time.Sleep(15 * time.Second)
+
+			// 计算指数退避等待时间，但不超过最大值
+			delay := baseDelay * time.Duration(1<<uint(failureCount-1)) // 2^(failureCount-1) * baseDelay
+			if delay > maxDelay {
+				delay = maxDelay
+			}
+
+			// logger.Infow("Retrying after backoff",
+			// 	"ip", s.IP,
+			// 	"delay", delay.String(),
+			// 	"failureCount", failureCount,
+			// )
+			time.Sleep(delay)
 			continue
+		}
+
+		// 成功读取，重置失败计数
+		if failureCount > 0 {
+			logger.Infow("Sensor read successful after failures",
+				"ip", s.IP,
+				"campus", s.Campus,
+				"building", s.Building,
+				"room", s.Room,
+				"previousFailures", failureCount,
+			)
+			failureCount = 0
 		}
 
 		if reading.Humidity != 0 {
