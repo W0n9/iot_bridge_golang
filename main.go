@@ -36,7 +36,7 @@ var (
 func monitorSensor(s config.Sensor) {
 	failureCount := 0
 	baseDelay := 15 * time.Second
-	maxDelay := 15 * time.Minute // 设置最大重试延迟为15分钟
+	maxDelay := 24 * time.Hour // 设置最大重试延迟为24小时
 
 	for {
 		reading, err := read_sensor.ReadSensor(s.IP, 80)
