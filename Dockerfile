@@ -13,10 +13,14 @@ RUN go mod download
 COPY . .
 
 # 编译
-RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o main .
 
 # 运行阶段
 FROM alpine:3.21
+
+# 安装时区数据
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Shanghai
 
 WORKDIR /app
 

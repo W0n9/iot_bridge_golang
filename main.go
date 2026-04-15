@@ -42,18 +42,21 @@ func monitorSensor(s config.Sensor) {
 		reading, err := read_sensor.ReadSensor(s.IP, 80)
 		if err != nil {
 			failureCount++
-			logger.Errorw("Failed to read sensor",
-				"ip", s.IP,
-				"campus", s.Campus,
-				"building", s.Building,
-				"room", s.Room,
-				"error", err,
-			)
+			// 仅在首次失败时记录 Error，减少日志噪音
+			if failureCount == 1 {
+				logger.Errorw("Sensor network unreachable",
+					"ip", s.IP,
+					"campus", s.Campus,
+					"building", s.Building,
+					"room", s.Room,
+					"error", err,
+				)
+			}
 			temperatureGauge.DeleteLabelValues(s.IP, s.Campus, s.Building, s.Room)
 			humidityGauge.DeleteLabelValues(s.IP, s.Campus, s.Building, s.Room)
 
 			// 计算指数退避等待时间，但不超过最大值
-			delay := baseDelay * time.Duration(1<<uint(failureCount-1)) // 2^(failureCount-1) * baseDelay
+			delay := baseDelay * time.Duration(1 << uint(failureCount))
 			if delay > maxDelay {
 				delay = maxDelay
 			}
